@@ -1,12 +1,13 @@
 # Instala e carrega as bibliotecas necessárias
-install.packages('dplyr', 'googlesheets4', 'janitor')
+#install.packages(c('dplyr', 'googlesheets4', 'janitor'))
 library(dplyr)
 library(googlesheets4)
 library(janitor)
 
 # Lê aba Piloto da planilha do Google e salva na variável experimental_data.
 # No primeiro acesso vai pedir permissão e depois essa autenticação fica em cache
-experimental_data = read_sheet(GOOGLESHEET_URL, sheet = SHEET )
+#experimental_data = read_sheet(GOOGLESHEET_URL, sheet = SHEET )
+ experimental_data = read_sheet("https://docs.google.com/spreadsheets/d/1x3B0baEBQDwrHtnxc-4iSvEa3xqJZ4JyBeX7t5nHnNk/edit#gid=1396750409", sheet = 'Piloto')
 
 # Trata nomes das colunas
 experimental_data <- experimental_data %>% clean_names()
@@ -48,6 +49,10 @@ results <- data.frame(
     VarClarity=double()
 )
 
+papers <- read_sheet('https://docs.google.com/spreadsheets/d/1Pvf9KQ3zPSB1DL0HwavCfO2nLzz5IBBo1EfPBxd2jT4/edit#gid=0', sheet = 'Artigos')
+papers['Block'][papers['Block'] == "BlockC"] <- '1'
+papers['Block'][papers['Block'] == "BlockS"] <- '2'
+
 # Faz um loop usando o ID do abstract para filtrar os resultados e salva na variavel z,
 # cria um novo datafram chamado abstract_results para armazenar os dados consolidados
 # de cada abstract em cada iteração. Ao final, insere os dados do abstract no dataframe
@@ -59,11 +64,12 @@ results <- data.frame(
 # A função var calcula a variância dos valores de uma coluna
 for (abstract in abstracts_ids) {
     z <- experimental_data %>% filter(add_abstract_id == abstract)
+    y <- papers %>% filter(ID == abstract)
 	abstract_results <- data.frame(
         Abstract=abstract,
-	    Treatment=NA,
-	    Journal=NA,
-	    Timeperiod=NA,
+	    Treatment=paste(y$JORNAL, y$Block, sep = '-'),
+	    Journal=y$JORNAL,
+	    Timeperiod=y$Block,
 	    MeanCompleteness=mean(z$mean_completeness_specific_judge),
 	    MedianCompleteness=median(z$mean_completeness_specific_judge),
 	    MedianClarity=median(z$clarity_of_the_abstract),
@@ -73,3 +79,6 @@ for (abstract in abstracts_ids) {
     )
 	results <- rbind(results, abstract_results)
 }
+
+write.csv(experimental_data, "data/experimental_data.csv", row.names = TRUE)
+write.csv(results, "data/results.csv", row.names = TRUE)
