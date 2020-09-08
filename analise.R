@@ -1,6 +1,7 @@
 # install.packages('ICC', 'dplyr', 'ggplot2')
-library(ICC)
 library(dplyr)
+library(effsize)
+library(ICC)
 library(ggplot2)
 
 # Carregando os dados gerados pelo script trata_dados.R
@@ -53,3 +54,35 @@ png(file="plots/scatter_plot.png")
     scatter_plot <- ggplot(scatter_data, aes(x = MedianClarity, y = MeanCompleteness), xlab("Abstract clarity"), ylab("Abstract completeness"))
     scatter_plot + geom_point(aes(shape = factor(Treatment))) + xlab("Abstract clarity") + ylab("Abstract completeness") + labs(shape="Abstract type")
 dev.off()
+
+
+# Executa o teste Cliff's para verificar a influência do journal na completude
+cliff_journal_completeness <- cliff.delta(results$MedianCompleteness~results$Journal, return.dm=T)
+
+print("Resultados do teste Cliff's para influência do journal na completude")
+cat("Delta =", cliff_journal_completeness$estimate, '\n')
+cat("Confidence Interval =", cliff_journal_completeness$conf.int, '\n')
+
+# Executa o teste Cliff's para verificar a influência do journal na clareza 
+cliff_journal_clarity <- cliff.delta(results$MedianClarity~results$Journal, return.dm=T)
+
+print("Resultados do teste Cliff's para influência do journal na completude")
+cat("Delta =", cliff_journal_clarity$estimate, '\n')
+cat("Confidence Interval =", cliff_journal_clarity$conf.int, '\n')
+
+# Executa o teste Cliff's para verificar a influência do periodo na completude
+# Por padrão, o R ordena os levels, neste caso 1 e 2, por ordem crescente.
+# Mas o artigo quer comparar o período 2 com o 1 e não o 1 com o 2. 
+# Por isso, declaramos exeplicitamente a ordem dos fatores
+cliff_period_completeness <- cliff.delta(results$MedianCompleteness~factor(results$Timeperiod, levels = c(2, 1)), return.dm=T)
+
+print("Resultados do teste Cliff's para influência do período na completude")
+cat("Delta =", cliff_period_completeness$estimate, '\n')
+cat("Confidence Interval =", cliff_period_completeness$conf.int, '\n')
+
+# Executa o teste Cliff's para verificar a influência do periodo na clareza
+cliff_period_clarity <- cliff.delta(results$MedianClarity~factor(results$Timeperiod, levels = c(2, 1)), return.dm=T)
+
+print("Resultados do teste Cliff's para influência do período na clarity")
+cat("Delta =", cliff_period_clarity$estimate, '\n')
+cat("Confidence Interval =", cliff_period_clarity$conf.int, '\n')
