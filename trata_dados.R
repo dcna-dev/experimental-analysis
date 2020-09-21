@@ -7,7 +7,7 @@ library(janitor)
 # Lê aba Piloto da planilha do Google e salva na variável experimental_data.
 # No primeiro acesso vai pedir permissão e depois essa autenticação fica em cache
 #experimental_data = read_sheet(GOOGLESHEET_URL, sheet = SHEET )
- experimental_data = read_sheet("https://docs.google.com/spreadsheets/d/1x3B0baEBQDwrHtnxc-4iSvEa3xqJZ4JyBeX7t5nHnNk/edit#gid=1396750409", sheet = 'Piloto')
+ experimental_data = read_sheet("https://docs.google.com/spreadsheets/d/1muzi2jkQd7NGMvIaIK2V5gz2EwkqOVhFoV3KVX5lTOQ/edit#gid=1419474728", sheet = 'Respostas form')
 
 # Trata nomes das colunas
 experimental_data <- experimental_data %>% clean_names()
